@@ -6,7 +6,8 @@ const express = require("express"),
   bodyParser = require("body-parser"),
   errorHandler = require("./handlers/error"),
   authRoutes = require("./routes/auth"),
-  messagesRoutes = require("./routes/messages");
+  messagesRoutes = require("./routes/messages"),
+  { loginRequired, ensureCorrectUser } = require("./middleware/auth");
 
 // Port and IP config
 const PORT = process.env.PORT || 8081;
@@ -17,7 +18,12 @@ app.use(bodyParser.json());
 
 // All routes here
 app.use("/api/auth", authRoutes);
-app.use("/api/users/:id/messages", messagesRoutes);
+app.use(
+  "/api/users/:id/messages",
+  loginRequired,
+  ensureCorrectUser,
+  messagesRoutes
+);
 
 app.use(function (req, res, next) {
   let err = new Error("Not found");
